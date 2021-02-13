@@ -35,7 +35,7 @@ class ChatViewController: UIViewController {
             return
         }
         
-        db.collection(K.FStore.collectionName).addDocument(data: [K.FStore.bodyField : msgBody, K.FStore.senderField : msgSender]) {
+        db.collection(K.FStore.collectionName).addDocument(data: [K.FStore.bodyField : msgBody, K.FStore.senderField : msgSender, K.FStore.dateField: Date().timeIntervalSince1970]) {
             (error) in
             if let e = error {
                 print("Error saving data: \(e)")
@@ -69,7 +69,7 @@ class ChatViewController: UIViewController {
             return
         }
         
-        db.collection(K.FStore.collectionName).addDocument(data: [K.FStore.bodyField : msgBody, K.FStore.senderField : msgSender]) {
+        db.collection(K.FStore.collectionName).addDocument(data: [K.FStore.bodyField : msgBody, K.FStore.senderField : msgSender, K.FStore.dateField: Date().timeIntervalSince1970]) {
             (error) in
             if let e = error {
                 print("Error saving data: \(e)")
@@ -83,12 +83,13 @@ class ChatViewController: UIViewController {
     }
     
     func loadMessages() {
-        messages = []
-        let dbRef = db.collection(K.FStore.collectionName)
-        dbRef.getDocuments { (querySnapshot, error) in
+        
+        let dbRef = db.collection(K.FStore.collectionName).order(by: K.FStore.dateField)
+        dbRef.addSnapshotListener { (querySnapshot, error) in
             if let e = error {
                 print("Error fetching data: \(e)")
             } else {
+                self.messages = []
                 if let querySnapshotDocs = querySnapshot?.documents {
                     for doc in querySnapshotDocs {
                         print(doc.data())
