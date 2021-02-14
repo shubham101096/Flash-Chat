@@ -98,10 +98,12 @@ class ChatViewController: UIViewController {
                         
                         if let msgBody = doc.data()[K.FStore.bodyField] as? String, let msgSender = doc.data()[K.FStore.senderField] as? String {
                             self.messages.append(Message(sender: msgSender, body: msgBody))
-                            DispatchQueue.main.async {
-                                self.tableView.reloadData()
-                            }
+
                         }
+                    }
+                    DispatchQueue.main.async {
+                        self.tableView.reloadData()
+                        self.tableView.scrollToRow(at: IndexPath(row: self.messages.count-1, section: 0), at: .top, animated: true)
                     }
                 }
             }
@@ -119,6 +121,16 @@ extension ChatViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: K.cellIdentifier, for: indexPath) as! MessageCell
         cell.label.text = messages[indexPath.row].body
+        if Auth.auth().currentUser?.email == messages[indexPath.row].sender {
+            cell.leftImageView.isHidden = true
+            cell.rightImageView.isHidden = false
+            cell.messageBubble.backgroundColor = UIColor(named: K.BrandColors.lightPurple)
+            cell.label.textColor = UIColor(named: K.BrandColors.purple)
+        } else {
+            cell.leftImageView.isHidden = false
+            cell.rightImageView.isHidden = true
+            cell.messageBubble.backgroundColor = UIColor(named: K.BrandColors.purple)
+        }
         return cell
     }
     
